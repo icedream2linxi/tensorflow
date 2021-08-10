@@ -69,4 +69,10 @@ limitations under the License.
 // in a future release of TensorFlow.
 #define PLATFORM_RE2_STRINGPIECE_IS_NOW_ABSL_STRING_VIEW
 
+#ifdef _MSC_VER
+#define and &&
+#define or ||
+#define not !
+#endif
+
 #endif  // TENSORFLOW_PLATFORM_PLATFORM_DEFINE_H_
