@@ -120,7 +120,7 @@ bool FixBazelEnvPath(const char* path, string* out) {
 
   for (size_t pos = out->find('/'); pos != string::npos;
        pos = out->find('/', pos + 1)) {
-    (*out)[pos] = kPathSep[0];
+    (*out)[pos] = '\\';
   }
 #endif
 
