@@ -142,15 +142,15 @@ bazel build --announce_rc --config=opt --define=no_tensorflow_py_deps=true \
   ${EXTRA_BUILD_FLAGS} \
   tensorflow/tools/pip_package:build_pip_package || exit $?
 
-if [[ "$SKIP_TEST" == 1 ]]; then
-  exit 0
-fi
-
 # Create a python test directory to avoid package name conflict
 create_python_test_dir "${PY_TEST_DIR}"
 
 ./bazel-bin/tensorflow/tools/pip_package/build_pip_package "$PWD/${PY_TEST_DIR}" \
   --gpu ${EXTRA_PIP_FLAGS}
+
+if [[ "$SKIP_TEST" == 1 ]]; then
+  exit 0
+fi
 
 if [[ "$TF_NIGHTLY" == 1 ]]; then
   exit 0
