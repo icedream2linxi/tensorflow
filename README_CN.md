@@ -29,12 +29,13 @@ Python环境要求:
 ## Windows 下编译
 
 1. 安装 msys2 到 C:\tools\msys64
-2. 安装 Python3.8 到 C:\Python38
-3. 安装 CUDA 及 CUDNN 到 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.x
-4. 将 C:\tools\msys64\usr\bin 添加 PATH 环境变量中
-5. 添加 BAZEL_VS 环境变量为 Visual Studio 2019 的安装目录，例如 C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise
-6. 添加 SKIP_TEST 环境变量为 1，跳过最后的测试
-7. 运行 tensorflow\tools\ci_build\release\windows\gpu_py38_full\release.bat
+2. 在 msys2 中安装 zip、unzip、wget、patch 这几个包。命令 `pacman -S zip unzip wget patch`
+3. 安装 Python3.8 到 C:\Python38
+4. 安装 CUDA 及 CUDNN 到 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.x
+5. 将 C:\tools\msys64\usr\bin 添加 PATH 环境变量中
+6. 添加 BAZEL_VS 环境变量为 Visual Studio 2019 的安装目录，例如 C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise
+7. 添加 SKIP_TEST 环境变量为 1，跳过最后的测试
+8. 运行 tensorflow\tools\ci_build\release\windows\gpu_py38_full\release.bat
 
 
 ## Windows 下安装
