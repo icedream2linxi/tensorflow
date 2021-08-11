@@ -17,4 +17,8 @@ SET PYTHON_DIRECTORY=Python38
 
 CALL tensorflow\tools\ci_build\release\common_win.bat
 
-call tensorflow\tools\ci_build\windows\gpu\pip\run.bat --release_build
+IF "%SKIP_TEST%" == "1" (
+    call tensorflow\tools\ci_build\windows\gpu\pip\run.bat --release_build --skip_test
+) ELSE (
+    call tensorflow\tools\ci_build\windows\gpu\pip\run.bat --release_build
+)
