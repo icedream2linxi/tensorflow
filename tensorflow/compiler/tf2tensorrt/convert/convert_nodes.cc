@@ -12,7 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif
 #include "tensorflow/compiler/tf2tensorrt/convert/convert_nodes.h"
 
 #include <algorithm>
@@ -386,8 +388,8 @@ Status GetTrtBroadcastShape(const TRT_TensorOrWeights& operand_l,
         "Broadcasting requires at least one of the operands be tensors");
   }
 
-  const int max_nb_dims = nvinfer1::Dims::MAX_DIMS + 1;
-  auto compute_output_dims = [](const TRT_TensorOrWeights& input,
+  constexpr int max_nb_dims = nvinfer1::Dims::MAX_DIMS + 1;
+  auto compute_output_dims = [=](const TRT_TensorOrWeights& input,
                                 int broadcast_num_dims, int* output_dims_array,
                                 nvinfer1::Dims* output_dims) {
     const nvinfer1::Dims input_dims = input.GetTrtDims();
@@ -4299,6 +4301,11 @@ Status ConvertSplitHelper(OpConverterParams* params,
   return Status::OK();
 }
 
+#if IS_TRT_VERSION_GE(5, 1, 3, 1)
+  #define ALLOW_DATA_TYPES_PARAM DataType::DT_INT32,
+#else
+  #define ALLOW_DATA_TYPES_PARAM
+#endif
 Status ConvertSplit(OpConverterParams* params) {
   const auto& inputs = params->inputs;
   const auto& node_def = params->node_def;
@@ -4306,9 +4313,7 @@ Status ConvertSplit(OpConverterParams* params) {
       CheckInputsWeights(*params, {{"axis", true}, {"value", false}}));
   TF_RETURN_IF_ERROR(AllowDataTypes(*params, {
     DataType::DT_FLOAT, DataType::DT_HALF,
-#if IS_TRT_VERSION_GE(5, 1, 3, 1)
-        DataType::DT_INT32,
-#endif
+    ALLOW_DATA_TYPES_PARAM
   }));
   int tf_axis = inputs.at(0).weights().GetSpan<int>()[0];
   TFAttrs attrs(node_def);
@@ -4323,9 +4328,7 @@ Status ConvertUnpack(OpConverterParams* params) {
   TF_RETURN_IF_ERROR(CheckInputsWeights(*params, {{"value", false}}));
   TF_RETURN_IF_ERROR(AllowDataTypes(*params, {
     DataType::DT_FLOAT, DataType::DT_HALF,
-#if IS_TRT_VERSION_GE(5, 1, 3, 1)
-        DataType::DT_INT32,
-#endif
+    ALLOW_DATA_TYPES_PARAM
   }));
   // Input must be rank 1 or higher, since we can't unpack on axis 0.
   if (inputs.at(0).GetTrtDims().nbDims == 0) {

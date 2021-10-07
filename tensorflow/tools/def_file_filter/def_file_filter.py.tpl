@@ -44,7 +44,13 @@ DUMPBIN_CMD = "\"{}\" /SYMBOLS".format("%{dumpbin_bin_path}")
 GREP_CMD = "| grep External"
 
 # Exclude if matched
-EXCLUDE_RE = re.compile(r"RTTI|deleting destructor|::internal::")
+EXCLUDE_RE = re.compile(r"RTTI|deleting destructor|::internal::|Internal|"
+                        r"python_op_gen_internal|"
+                        r"::`anonymous namespace'::|<lambda_[0-9a-z]+>|"
+                        r"::_|"
+                        r"std::_|std::fill<|std::function<|std::allocator_traits<|std::back_insert_iterator<|"
+                        r"std::distance<|std::equal_to<|std::sort<|std::swap<|std::make_shared<|"
+                        r">::[a-zA-Z0-9_]+<|>::[a-zA-Z0-9_]+\(|>::[a-zA-Z0-9_]+\[|>::\~[a-zA-Z0-9_]+\(")
 
 # Include if matched before exclude
 INCLUDEPRE_RE = re.compile(r"google::protobuf::internal::ExplicitlyConstructed|"
@@ -63,7 +69,13 @@ INCLUDEPRE_RE = re.compile(r"google::protobuf::internal::ExplicitlyConstructed|"
                            r"tensorflow::ops::internal::Enter|"
                            r"tensorflow::strings::internal::AppendPieces|"
                            r"tensorflow::strings::internal::CatPieces|"
-                           r"tensorflow::io::internal::JoinPathImpl")
+                           r"tensorflow::io::internal::JoinPathImpl|"
+                           r"tensorflow::errors::Internal|"
+                           r"tensorflow::Tensor::CopyFromInternal|"
+                           r"tensorflow::kernel_factory::|"
+                           r"OpKernelRegistrar::InitInternal|"
+                           r"tensorflow::TensorShapeBase|"
+                           r"tensorflow::LinearAlgebraOp")
 
 # Include if matched after exclude
 INCLUDE_RE = re.compile(r"^(TF_\w*)$|"
@@ -172,9 +184,42 @@ def get_pybind_export_symbols(symbols_file, lib_paths):
 
   return symbols_all
 
+def export_symbols(lib_paths):
+  pattern = re.compile(r'^\?dtor\$\d@\?0\?\?\?')
+  symbols_all = set()
+  for lib in lib_paths:
+    lib = lib.strip()
+    if not lib:
+      continue
+
+    sym_found = subprocess.check_output("{} {} {}".format(DUMPBIN_CMD, lib, GREP_CMD), shell=True)
+    sym_found = sym_found.decode()
+    sym_lines = sym_found.splitlines()
+    for line in sym_lines:
+      line = line.strip()
+      if not line:
+        continue
+      sym = line.split("|")[1].strip()
+      idx = sym.find(" (")
+      if idx > 0:
+        sym = sym[0:idx]
+      ignore = False
+      for item in ("$cppxdata$", "$ip2state$", "$pdata$", "$unwind$", "$stateUnwindMap$"):
+        if sym.startswith(item):
+          ignore = True
+          break
+      if ignore or pattern.match(sym):
+        continue
+      symbols_all.add(sym)
+
+  return symbols_all
+
 def main():
   """main."""
   args = get_args()
+
+  if args.lib_paths:
+    symbols = export_symbols(args.lib_paths)
 
   # Get symbols that need to be exported from specific libraries for pybind.
   symbols_pybind = []
@@ -193,6 +238,12 @@ def main():
       sym = cols[0]
       tmpfile.file.write(sym + "\n")
       candidates.append(sym)
+      if sym in symbols:
+        symbols.remove(sym)
+
+  for sym in symbols:
+    candidates.append(sym)
+    tmpfile.file.write(sym + "\n")
   tmpfile.file.close()
 
   # Run the symbols through undname to get their undecorated name

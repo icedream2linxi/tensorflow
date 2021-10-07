@@ -248,7 +248,7 @@ TRITONTF_EXPORT void TRITONTF_ModelDelete(TRITONTF_Model* model);
 // inputs are on the same TF device (vGPU) as the model session.
 // Note that depending on the data type, GPU tensor may not be supported,
 // in such case, the callable will expect those unsupported I/Os to be on CPU.
-TRITONTF_Error* TRITONTF_ModelMakeCallable(
+TRITONTF_EXPORT TRITONTF_Error* TRITONTF_ModelMakeCallable(
     TRITONTF_Model* model, const char** input_names,
     const TRITONTF_DataType* input_types, const size_t num_inputs,
     const char** output_names, const TRITONTF_DataType* output_types,

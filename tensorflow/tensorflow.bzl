@@ -1716,6 +1716,8 @@ def tf_custom_op_library_additional_deps_impl():
         # for //tensorflow/core:framework_headers_lib
         clean_dep("//tensorflow/core:framework"),
         clean_dep("//tensorflow/core:reader_base"),
+        clean_dep("//tensorflow/cc:client_session"),
+        clean_dep("//tensorflow/core:protos_all_proto_cc_impl"),
     ]
 
 # Traverse the dependency graph along the "deps" attribute of the

@@ -104,7 +104,7 @@ cc_library(
         "//tensorflow/core:stream_executor_headers_lib",
         "//tensorflow/core/grappler/costs:graph_properties",
         "//tensorflow/stream_executor/lib",
-    ] + if_tensorrt([":tensorrt_lib"]) + tf_custom_op_library_additional_deps(),
+    ] + if_tensorrt([":tensorrt_lib"]),
     alwayslink = 1,
 )
 
@@ -126,7 +126,7 @@ cc_library(
         "//tensorflow/core:lib",
         "//tensorflow/core:lib_internal",
         "//tensorflow/core:lib_proto_parsing",
-    ] + if_tensorrt([":tensorrt_lib"]) + tf_custom_op_library_additional_deps(),
+    ] + if_tensorrt([":tensorrt_lib"]),
     alwayslink = 1,
 )
 
@@ -342,7 +342,7 @@ tf_cuda_library(
         "//tensorflow/core/grappler/clusters:virtual_cluster",
         "//tensorflow/core/grappler/costs:graph_properties",
         "//tensorflow/core/grappler/optimizers:meta_optimizer",
-    ] + if_tensorrt([":tensorrt_lib"]) + tf_custom_op_library_additional_deps(),
+    ] + if_tensorrt([":tensorrt_lib"]),
     alwayslink = 1,
 )
 
