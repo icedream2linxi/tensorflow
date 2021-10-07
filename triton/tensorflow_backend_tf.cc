@@ -1016,12 +1016,12 @@ TRITONTF_ModelCreateFromSavedModel(
     io->data_type_ = dt;
 
     const tensorflow::TensorShapeProto& shape = sin.second.tensor_shape();
-    int64_t shape_dims[shape.dim().size()];
+    std::vector<int64_t> shape_dims(shape.dim().size());
     for (int i = 0; i < shape.dim().size(); ++i) {
       shape_dims[i] = shape.dim(i).size();
     }
 
-    io->shape_ = TRITONTF_ShapeNew(shape.dim().size(), shape_dims);
+    io->shape_ = TRITONTF_ShapeNew(shape.dim().size(), shape_dims.data());
   }
 
   // Collect the outputs...
@@ -1042,12 +1042,12 @@ TRITONTF_ModelCreateFromSavedModel(
     io->data_type_ = dt;
 
     const tensorflow::TensorShapeProto& shape = sout.second.tensor_shape();
-    int64_t shape_dims[shape.dim().size()];
+    std::vector<int64_t> shape_dims(shape.dim().size());
     for (int i = 0; i < shape.dim().size(); ++i) {
       shape_dims[i] = shape.dim(i).size();
     }
 
-    io->shape_ = TRITONTF_ShapeNew(shape.dim().size(), shape_dims);
+    io->shape_ = TRITONTF_ShapeNew(shape.dim().size(), shape_dims.data());
   }
 
   std::string device_name;

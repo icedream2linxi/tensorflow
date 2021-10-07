@@ -260,8 +260,8 @@ void StableDFS(const SimpleGraph& g, bool reverse,
     stack[i] = Work{start[i], false};
   }
 
-  auto get_nodes = reverse ? [](const SimpleNode* n) { return n->in_nodes(); }
-                           : [](const SimpleNode* n) { return n->out_nodes(); };
+  auto get_nodes = reverse ? &SimpleNode::in_nodes
+                           : &SimpleNode::out_nodes;
   std::vector<bool> visited(g.num_node_ids(), false);
   while (!stack.empty()) {
     Work w = stack.back();
@@ -280,7 +280,7 @@ void StableDFS(const SimpleGraph& g, bool reverse,
     // Arrange to call leave(n) when all done with descendants.
     if (leave) stack.push_back(Work{n, true});
 
-    auto nodes = get_nodes(n);
+    auto nodes = (n->*get_nodes)();
     std::vector<const SimpleNode*> nodes_sorted(nodes.begin(), nodes.end());
     std::sort(nodes_sorted.begin(), nodes_sorted.end(),
               [](const SimpleNode* lhs, const SimpleNode* rhs) {
