@@ -2940,6 +2940,7 @@ tf_cuda_library(
         "//tensorflow/core:framework/bfloat16",
         "//tensorflow/core:framework/numeric_types",
         "//tensorflow/core/kernels:bounds_check",
+        "//tensorflow/core/profiler:nvtx_utils",
         "//tensorflow/core/profiler/lib:traceme",
         "//third_party/eigen3",
     ] + if_static(
