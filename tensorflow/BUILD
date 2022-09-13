@@ -705,14 +705,15 @@ filegroup(
 # the dynamic libraries of custom ops can find it at runtime.
 genrule(
     name = "tensorflow_filtered_def_file",
-    srcs = [":tensorflow_def_file", "//tensorflow/core:protos_all_proto_cc_impl"],
+    srcs = [":tensorflow_def_file", "//tensorflow/core:protos_all_proto_cc_impl", "//triton:triton_tf"],
     outs = ["tensorflow_filtered_def_file.def"],
     cmd = select({
         "//tensorflow:windows": """
               $(location @local_config_def_file_filter//:def_file_filter) \\
               --input $(location :tensorflow_def_file) \\
               --output $@ \\
-              --lib_paths $(execpath //tensorflow/core:protos_all_proto_cc_impl)
+              --lib_paths $(execpath //tensorflow/core:protos_all_proto_cc_impl) \\
+              --lib_paths $(execpath //triton:triton_tf)
           """,
         "//conditions:default": "touch $@",  # Just a placeholder for Unix platforms
     }),

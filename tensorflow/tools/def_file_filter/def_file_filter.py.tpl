@@ -75,7 +75,8 @@ INCLUDEPRE_RE = re.compile(r"google::protobuf::internal::ExplicitlyConstructed|"
                            r"tensorflow::kernel_factory::|"
                            r"OpKernelRegistrar::InitInternal|"
                            r"tensorflow::TensorShapeBase|"
-                           r"tensorflow::LinearAlgebraOp")
+                           r"tensorflow::LinearAlgebraOp|"
+                           r"TRITONTF")
 
 # Include if matched after exclude
 INCLUDE_RE = re.compile(r"^(TF_\w*)$|"
