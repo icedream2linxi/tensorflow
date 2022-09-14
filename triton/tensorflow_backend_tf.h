@@ -1,4 +1,4 @@
-// Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+// Copyright 2019-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -30,7 +30,7 @@
 #include <map>
 #include <vector>
 
-// To avoid namespace and protobuf collision between TRITON and
+// To avoid namespace and protobuf collision between Triton and
 // TensorFlow, we keep TensorFlow interface isolated to
 // tensorflow_backend_tf. We use a strict C interface to avoid any ABI
 // problems since we don't know how TF is built.
@@ -50,7 +50,7 @@ extern "C" {
 // GPU device number that indicates that no gpu is available.
 #define TRITONTF_NO_GPU_DEVICE -1
 
-// GPU device number that indicates TRITON should do nothing to control
+// GPU device number that indicates Triton should do nothing to control
 // the device alloaction for the network and let Tensorflow handle it.
 #define TRITONTF_MODEL_DEVICE -2
 
@@ -129,9 +129,9 @@ typedef struct {
 } TRITONTF_IO;
 
 // List of I/O information
-typedef struct tritontf_iolist_struct {
+typedef struct trtistf_iolist_struct {
   TRITONTF_IO* io_;
-  struct tritontf_iolist_struct* next_;
+  struct trtistf_iolist_struct* next_;
 } TRITONTF_IOList;
 
 //
@@ -142,9 +142,9 @@ typedef struct tritontf_iolist_struct {
 struct TRITONTF_Tensor;
 
 // List of tensors
-typedef struct tritontf_tensorlist_struct {
+typedef struct trtistf_tensorlist_struct {
   TRITONTF_Tensor* tensor_;
-  struct tritontf_tensorlist_struct* next_;
+  struct trtistf_tensorlist_struct* next_;
 } TRITONTF_TensorList;
 
 // Create an new tensor list. Ownership of 'tensor' passes to the
@@ -169,10 +169,12 @@ TRITONTF_EXPORT TRITONTF_Tensor* TRITONTF_TensorNew(
     int64_t* shape_dims, int tf_gpu_id);
 
 // Return a tensor's datatype.
-TRITONTF_EXPORT TRITONTF_DataType TRITONTF_TensorDataType(TRITONTF_Tensor* tensor);
+TRITONTF_EXPORT TRITONTF_DataType
+TRITONTF_TensorDataType(TRITONTF_Tensor* tensor);
 
 // Return the size of a tensor datatype, in bytes.
-TRITONTF_EXPORT int64_t TRITONTF_TensorDataTypeByteSize(TRITONTF_Tensor* tensor);
+TRITONTF_EXPORT int64_t
+TRITONTF_TensorDataTypeByteSize(TRITONTF_Tensor* tensor);
 
 // Return the shape of the tensor. The shape is owned by the tensor
 // and should not be modified or freed by the caller.
@@ -217,7 +219,7 @@ struct TRITONTF_Model;
 
 // Create a GraphDef model.
 TRITONTF_EXPORT TRITONTF_Error* TRITONTF_ModelCreateFromGraphDef(
-    TRITONTF_Model** tritontf_model, const char* model_name,
+    TRITONTF_Model** trtistf_model, const char* model_name,
     const char* model_path, const int device_id, const int num_intra_threads,
     const int num_inter_threads, const bool use_per_session_threads,
     const bool has_graph_level, const int graph_level,
@@ -229,7 +231,7 @@ TRITONTF_EXPORT TRITONTF_Error* TRITONTF_ModelCreateFromGraphDef(
 
 // Create a SavedModel model.
 TRITONTF_EXPORT TRITONTF_Error* TRITONTF_ModelCreateFromSavedModel(
-    TRITONTF_Model** tritontf_model, const char* model_name,
+    TRITONTF_Model** trtistf_model, const char* model_name,
     const char* model_path, const int device_id, const int num_intra_threads,
     const int num_inter_threads, const bool use_per_session_threads,
     const char* graph_tag, const char* signature_def,
@@ -248,7 +250,7 @@ TRITONTF_EXPORT void TRITONTF_ModelDelete(TRITONTF_Model* model);
 // inputs are on the same TF device (vGPU) as the model session.
 // Note that depending on the data type, GPU tensor may not be supported,
 // in such case, the callable will expect those unsupported I/Os to be on CPU.
-TRITONTF_EXPORT TRITONTF_Error* TRITONTF_ModelMakeCallable(
+TRITONTF_Error* TRITONTF_ModelMakeCallable(
     TRITONTF_Model* model, const char** input_names,
     const TRITONTF_DataType* input_types, const size_t num_inputs,
     const char** output_names, const TRITONTF_DataType* output_types,
@@ -269,8 +271,14 @@ TRITONTF_EXPORT TRITONTF_IOList* TRITONTF_ModelOutputs(TRITONTF_Model* model);
 // 'output_names'. The caller must free 'output_tensors' by calling
 // TRITONTF_TensorListDelete.
 TRITONTF_EXPORT TRITONTF_Error* TRITONTF_ModelRun(
-    TRITONTF_Model* model, TRITONTF_TensorList* input_tensors, size_t num_outputs,
-    const char** output_names, TRITONTF_TensorList** output_tensors);
+    TRITONTF_Model* model, TRITONTF_TensorList* input_tensors,
+    size_t num_outputs, const char** output_names,
+    TRITONTF_TensorList** output_tensors);
+
+// Initialize all the operations that do require initialization.
+TRITONTF_EXPORT TRITONTF_Error* TRITONTF_ModelInitialize(
+    TRITONTF_Model* model, size_t num_init_operations,
+    const char** init_operation_names);
 
 #ifdef __cplusplus
 }  // extern "C"

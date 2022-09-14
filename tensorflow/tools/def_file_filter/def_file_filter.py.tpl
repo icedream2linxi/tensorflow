@@ -52,6 +52,16 @@ EXCLUDE_RE = re.compile(r"RTTI|deleting destructor|::internal::|Internal|"
                         r"std::distance<|std::equal_to<|std::sort<|std::swap<|std::make_shared<|"
                         r">::[a-zA-Z0-9_]+<|>::[a-zA-Z0-9_]+\(|>::[a-zA-Z0-9_]+\[|>::\~[a-zA-Z0-9_]+\(")
 
+EXCLUDEPRE_RE = re.compile(r"std::unique_ptr<.*>::operator=<|std::pair<.*>::operator=<|absl::optional<.*>::operator=<|"
+                           r"std::tuple<.*>::operator=<|Eigen::Map<.*>::operator=<|std::weak_ptr<.*>::operator=<|"
+                           r"Eigen::TensorDevice<.*>::operator=<|Eigen::TensorMap<.*>::operator=<|"
+                           r"Eigen::TensorChippingOp<.*>::operator=<|std::shared_ptr<.*>::operator=<|"
+                           r"std::unique_ptr<.*>::unique_ptr<|std::_Compressed_pair<.*>::_Compressed_pair<|"
+                           r">::default_delete<|::GetArrayOfElementPointers<|::GetArrayOfElementPointersImpl<|"
+                           r"absl::span_internal::|std::addressof<|__cdecl cub::|cudaFuncGetAttributes|thrust::|"
+                           r"absl::container_internal::|__cdecl std::move<|__cdecl std::forward<|"
+                           r"__cdecl absl::forward<|std::list<.*>::~list<")
+
 # Include if matched before exclude
 INCLUDEPRE_RE = re.compile(r"google::protobuf::internal::ExplicitlyConstructed|"
                            r"google::protobuf::internal::ArenaImpl::AllocateAligned|" # for contrib/data/_prefetching_ops
@@ -81,6 +91,7 @@ INCLUDEPRE_RE = re.compile(r"google::protobuf::internal::ExplicitlyConstructed|"
 # Include if matched after exclude
 INCLUDE_RE = re.compile(r"^(TF_\w*)$|"
                         r"^(TFE_\w*)$|"
+                        r"^(TRITONTF_\w*)$|"
                         r"nsync::|"
                         r"tensorflow::|"
                         r"functor::|"
@@ -92,6 +103,7 @@ INCLUDE_RE = re.compile(r"^(TF_\w*)$|"
 # __declspec(dllimport). It is easier to detect what a data symbol does
 # NOT look like, so doing it with the below regex.
 DATA_EXCLUDE_RE = re.compile(r"[)(]|"
+                             r"^(TRITONTF_\w*)$|"
                              r"vftable|"
                              r"vbtable|"
                              r"vcall|"
@@ -219,6 +231,7 @@ def main():
   """main."""
   args = get_args()
 
+  symbols = []
   if args.lib_paths:
     symbols = export_symbols(args.lib_paths)
 
@@ -268,6 +281,9 @@ def main():
       if decorated in taken:
         # Symbol is already in output, done.
         dupes += 1
+        continue
+
+      if EXCLUDEPRE_RE.search(line):
         continue
 
       if not INCLUDEPRE_RE.search(line):
